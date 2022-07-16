@@ -2,8 +2,8 @@ package searchapp
 
 class Country {
 
-    String name;
-    String capital;
+    String name
+    String capital
 
     static constraints = {
 

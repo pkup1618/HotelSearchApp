@@ -2,30 +2,30 @@
 <head>
     <meta name="layout" content="main"/>
     <asset:stylesheet src="custom-style.css"/>
-    <title>Поисковая страница</title>
+    <title>Поиск отелей</title>
 </head>
 <body>
 
 <div id="content" role="main">
     <section class="row colset-2-its">
-        <h1>Welcome to our Search Page!</h1>
+        <h1>Поиск отелей</h1>
     </section>
 </div>
 
 <div>
-    <g:form action="search" method="GET"> <!-- request params here -->
-        <g:textField name="hotelNameSubstring"/>
-        <g:select name="countryId" from="${countries}" optionValue="name" optionKey="id"/>
-        <input type="submit">
+    <g:form action="search" method="GET">
+        <br>
+        <p><g:textField name="hotelNameSubstring"/></p>
+        <br>
+        <p><g:select name="countryId" from="${countries}" optionValue="name" optionKey="id"/></p>
+        <br>
+        <br>
+        <p><input type="submit"></p>
     </g:form>
-
-    <form action="/hotel">
-        <button type="submit">Справочник отелей</button>
-    </form>
     <br>
-    <form action="/country">
-        <button type="submit">Справочник стран</button>
-    </form>
+    <p><g:link controller="hotel" action="index">Справочник отелей</g:link></p>
+    <br>
+    <p><g:link controller="country" action="index">Справочник стран</g:link></p>
 </div>
 
 </body>

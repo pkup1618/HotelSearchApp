@@ -1,18 +1,44 @@
 package searchapp
 
 import grails.gorm.services.Service
+import grails.gorm.transactions.Transactional
 
-@Service(Country)
-interface CountryService {
+@Service(value = Country, name = "countryService")
+class CountryService {
 
-    Country get(Serializable id)
+    def listCountry() {
+        Country.list()
+    }
 
-    List<Country> list(Map args)
+    def updateCountry(Long id, name, capital) {
+        def editableCountry = Country.findById(id)
 
-    Long count()
+        Country.withNewTransaction {
+            editableCountry.name = name
+            editableCountry.capital = capital
+            editableCountry.save flush: true
+        }
+    }
 
-    void delete(Serializable id)
+    def deleteCountry(Long id) {
+        def deletableCountry = Country.findById(id)
 
-    Country save(Country country)
+        Hotel.withNewTransaction() {
+            Hotel.where {
+                country == deletableCountry
+            }.deleteAll()
+        }
 
+        Country.withNewTransaction {
+            deletableCountry.delete flush: true
+        }
+    }
+
+    def saveCountry(name, capital) {
+        def createdCountry = new Country(name: name, capital: capital)
+
+        Country.withNewTransaction {
+            createdCountry.save flush: true
+        }
+    }
 }

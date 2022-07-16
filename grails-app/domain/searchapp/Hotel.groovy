@@ -12,8 +12,4 @@ class Hotel {
         rating inList: [1,2,3,4,5]
         ref nullable: true, url: true
     }
-
-    static mapping = {
-        sort rating: 'desc', name: 'asc'
-    }
 }

@@ -1,18 +1,39 @@
 package searchapp
 
 import grails.gorm.services.Service
+import org.springframework.transaction.annotation.Transactional
 
-@Service(Hotel)
-interface HotelService {
+@Service(value = Hotel, name = "hotelService")
+class HotelService {
 
-    Hotel get(Serializable id)
+    def listHotels() {
+        Hotel.list()
+    }
 
-    List<Hotel> list(Map args)
+    def updateHotel(id, name, int rating, country) {
+        def editableHotel = Hotel.findById(id)
 
-    Long count()
+        Hotel.withNewTransaction {
+            editableHotel.name = name
+            editableHotel.rating = rating
+            editableHotel.country = Country.findById(country)
+            editableHotel.save flush: true
+        }
+    }
 
-    void delete(Serializable id)
+    def deleteHotel(id) {
+        def deletableHotel = Hotel.findById(id)
 
-    Hotel save(Hotel hotel)
+        Hotel.withNewTransaction() {
+            deletableHotel.delete flush: true
+        }
+    }
 
+    def saveHotel(name, int rating, long country) {
+        def createdHotel = new Hotel(name: name, rating: rating, country: Country.findById(country))
+
+        Hotel.withNewTransaction {
+            createdHotel.save flush: true
+        }
+    }
 }

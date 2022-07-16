@@ -1,101 +1,55 @@
 package searchapp
 
-import grails.validation.ValidationException
-import static org.springframework.http.HttpStatus.*
 
 class CountryController {
 
     CountryService countryService
 
-    static allowedMethods = [save: "POST", update: "PUT", delete: "DELETE"]
+    // GET country
+    def index() {
+        def countries = countryService.listCountry()
+        def model = [countries: countries]
 
-    def index(Integer max) {
-        params.max = Math.min(max ?: 10, 100)
-        respond countryService.list(params), model:[countryCount: countryService.count()]
+        render (view: "index", model: model)
     }
 
+    // GET /country/$id/show
     def show(Long id) {
-        respond countryService.get(id)
+        def shownCountry = Country.findById(id)
+        def model = [country: shownCountry]
+
+        render(view: "show", model: model)
     }
 
-    def create() {
-        respond new Country(params)
-    }
-
-    def save(Country country) {
-        if (country == null) {
-            notFound()
-            return
-        }
-
-        try {
-            countryService.save(country)
-        } catch (ValidationException e) {
-            respond country.errors, view:'create'
-            return
-        }
-
-        request.withFormat {
-            form multipartForm {
-                flash.message = message(code: 'default.created.message', args: [message(code: 'country.label', default: 'Country'), country.id])
-                redirect country
-            }
-            '*' { respond country, [status: CREATED] }
-        }
-    }
-
+    // GET /country/$id/edit
     def edit(Long id) {
-        respond countryService.get(id)
+        def editableCountry = Country.findById(id)
+        def model = [country: editableCountry]
+
+        render(view: "edit", model: model)
     }
 
-    def update(Country country) {
-        if (country == null) {
-            notFound()
-            return
-        }
-
-        try {
-            countryService.save(country)
-        } catch (ValidationException e) {
-            respond country.errors, view:'edit'
-            return
-        }
-
-        request.withFormat {
-            form multipartForm {
-                flash.message = message(code: 'default.updated.message', args: [message(code: 'country.label', default: 'Country'), country.id])
-                redirect country
-            }
-            '*'{ respond country, [status: OK] }
-        }
+    // POST /country/$id/update
+    def update(Long id) {
+        countryService.updateCountry(id, params.name, params.capital)
+        redirect(controller: 'country', action: 'show', id: id)
     }
 
+    // GET /country/$id/delete
     def delete(Long id) {
-        if (id == null) {
-            notFound()
-            return
-        }
+        countryService.deleteCountry(id)
+        redirect(controller: 'country', action: 'index')
 
-        def country = Country.findById(id)
-        Hotel.deleteAll(Hotel.findAllByCountry(country))
-        countryService.delete(id)
-
-        request.withFormat {
-            form multipartForm {
-                flash.message = message(code: 'default.deleted.message', args: [message(code: 'country.label', default: 'Country'), id])
-                redirect action:"index", method:"GET"
-            }
-            '*'{ render status: NO_CONTENT }
-        }
     }
 
-    protected void notFound() {
-        request.withFormat {
-            form multipartForm {
-                flash.message = message(code: 'default.not.found.message', args: [message(code: 'country.label', default: 'Country'), params.id])
-                redirect action: "index", method: "GET"
-            }
-            '*'{ render status: NOT_FOUND }
-        }
+    // GET /country/$id/create
+    def create() {
+
+        render(view: 'create')
+    }
+
+    def save() {
+        countryService.saveCountry(params.name, params.capital)
+        redirect(controller: 'country', action: 'index')
     }
 }

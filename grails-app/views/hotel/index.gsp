@@ -2,27 +2,46 @@
 <html>
     <head>
         <meta name="layout" content="main" />
-        <g:set var="entityName" value="${message(code: 'hotel.label', default: 'Hotel')}" />
-        <title><g:message code="default.list.label" args="[entityName]" /></title>
+        <asset:stylesheet src="custom-style.css"/>
+        <title>Справочник отелей</title>
     </head>
     <body>
-        <a href="#list-hotel" class="skip" tabindex="-1"><g:message code="default.link.skip.label" default="Skip to content&hellip;"/></a>
-        <div class="nav" role="navigation">
-            <ul>
-                <li><a class="home" href="${createLink(uri: '/')}"><g:message code="default.home.label"/></a></li>
-                <li><g:link class="create" action="create"><g:message code="default.new.label" args="[entityName]" /></g:link></li>
-            </ul>
-        </div>
-        <div id="list-hotel" class="content scaffold-list" role="main">
-            <h1><g:message code="default.list.label" args="[entityName]" /></h1>
-            <g:if test="${flash.message}">
-                <div class="message" role="status">${flash.message}</div>
-            </g:if>
-            <f:table collection="${hotelList}" />
 
-            <div class="pagination">
-                <g:paginate total="${hotelCount ?: 0}" />
-            </div>
-        </div>
-    </body>
+    <h1>В систему заведено ${hotels.size()} отелей</h1>
+    <br>
+    <br>
+    <table>
+        <tr>
+            <th>Название</th>
+            <th>Рейтинг</th>
+            <th>Страна</th>
+            <th>Ссылка на сайт</th>
+            <th>Отредактировать</th>
+            <th>Удалить</th>
+            <th>Посмотреть</th>
+        </tr>
+        <g:each in="${hotels}" var="hotel">
+            <tr>
+                <td>${hotel.name}</td>
+                <td>${hotel.rating}</td>
+                <td>${hotel.country.name}</td>
+                <td>${hotel.ref}</td>
+                <td>
+                    <p><g:link class="link" controller="hotel" action="edit" method="GET" params="[id: hotel.id]">Изменить</g:link></p>
+                </td>
+                <td>
+                    <p><g:link controller="hotel" action="delete" method="GET" params="[id: hotel.id]">Удалить</g:link></p>
+                </td>
+                <td>
+                    <p><g:link controller="hotel"  action="show" method="GET" params="[id: hotel.id]">Посмотреть</g:link></p>
+                </td>
+            </tr>
+        </g:each>
+
+    </table>
+    <br>
+    <p><g:link controller="hotel"  action="create" method="POST">Внести отель</g:link></p>
+    <br>
+    <p><g:link controller="search"  action="index" method="GET">Вернуться на страницу поиска</g:link></p>
+        </body>
 </html>

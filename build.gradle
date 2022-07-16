@@ -25,6 +25,11 @@ repositories {
     maven { url "https://repo.grails.org/grails/core" }
 }
 
+
+springBoot {
+    mainClassName = "searchapp.Application"
+}
+
 configurations {
     developmentOnly
     runtimeClasspath {

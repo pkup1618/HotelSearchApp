@@ -1,99 +1,64 @@
 package searchapp
 
 import grails.validation.ValidationException
+import org.springframework.web.bind.annotation.DeleteMapping
+import org.springframework.web.bind.annotation.RequestParam
+import org.springframework.web.servlet.ModelAndView
+
 import static org.springframework.http.HttpStatus.*
 
 class HotelController {
 
     HotelService hotelService
 
-    static allowedMethods = [save: "POST", update: "PUT", delete: "DELETE"]
+    // GET /hotels
+    def index() {
+        def hotels = hotelService.listHotels()
+        def model = [hotels: hotels]
 
-    def index(Integer max) {
-        params.max = Math.min(max ?: 10, 100)
-        respond hotelService.list(params), model:[hotelCount: hotelService.count()]
+        render (view: "index", model: model)
     }
 
+
+    // GET /hotels/$id/show
     def show(Long id) {
-        respond hotelService.get(id)
+        def shownHotel = Hotel.findById(id)
+        def model = [hotel: shownHotel]
+
+        render(view: "show", model: model)
     }
 
-    def create() {
-        respond new Hotel(params)
-    }
-
-    def save(Hotel hotel) {
-        if (hotel == null) {
-            notFound()
-            return
-        }
-
-        try {
-            hotelService.save(hotel)
-        } catch (ValidationException e) {
-            respond hotel.errors, view:'create'
-            return
-        }
-
-        request.withFormat {
-            form multipartForm {
-                flash.message = message(code: 'default.created.message', args: [message(code: 'hotel.label', default: 'Hotel'), hotel.id])
-                redirect hotel
-            }
-            '*' { respond hotel, [status: CREATED] }
-        }
-    }
-
+    // GET /hotels/$id/edit
     def edit(Long id) {
-        respond hotelService.get(id)
+        def editableHotel = Hotel.findById(id)
+        def countries = Country.getAll()
+        def model = [hotel: editableHotel, countries: countries]
+
+        render(view: "edit", model: model)
     }
 
-    def update(Hotel hotel) {
-        if (hotel == null) {
-            notFound()
-            return
-        }
-
-        try {
-            hotelService.save(hotel)
-        } catch (ValidationException e) {
-            respond hotel.errors, view:'edit'
-            return
-        }
-
-        request.withFormat {
-            form multipartForm {
-                flash.message = message(code: 'default.updated.message', args: [message(code: 'hotel.label', default: 'Hotel'), hotel.id])
-                redirect hotel
-            }
-            '*'{ respond hotel, [status: OK] }
-        }
+    // POST /hotels/${id}/update
+    def update(Long id) {
+        hotelService.updateHotel(id, params.name, params.rating as int, params.country as int)
+        redirect(controller: 'hotel', action: 'show', id: id)
     }
 
+    // GET /hotels/$id/delete
     def delete(Long id) {
-        if (id == null) {
-            notFound()
-            return
-        }
-
-        hotelService.delete(id)
-
-        request.withFormat {
-            form multipartForm {
-                flash.message = message(code: 'default.deleted.message', args: [message(code: 'hotel.label', default: 'Hotel'), id])
-                redirect action:"index", method:"GET"
-            }
-            '*'{ render status: NO_CONTENT }
-        }
+        hotelService.deleteHotel(id)
+        redirect(controller: 'hotel', action: 'index')
     }
 
-    protected void notFound() {
-        request.withFormat {
-            form multipartForm {
-                flash.message = message(code: 'default.not.found.message', args: [message(code: 'hotel.label', default: 'Hotel'), params.id])
-                redirect action: "index", method: "GET"
-            }
-            '*'{ render status: NOT_FOUND }
-        }
+    // GET /hotels/create
+    def create() {
+        def countries = Country.findAll()
+        def model = [countries: countries]
+
+        render(view: "create", model: model)
+    }
+
+    def save() {
+        hotelService.saveHotel(params.name, params.rating as int, params.country as long)
+        redirect(controller: 'hotel', action: 'index')
     }
 }
