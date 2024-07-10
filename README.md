@@ -1,4 +1,4 @@
-# hotelSearchApp
+# Hotel_Search_App
 
 Тестовое задание, сайт поиска отелей.
 
